@@ -1,0 +1,75 @@
+#define echoPin 3
+#define trigPin 2
+ 
+int red = 10;
+int yellow = 9;
+int green = 8;
+int button = 12; // switch is on pin 12
+long duration;
+long distance;
+ 
+void setup() {
+  pinMode(red, OUTPUT);
+  pinMode(yellow, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(button, INPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(trigPin, OUTPUT);
+  digitalWrite(green, HIGH);
+  Serial.begin(9600);
+}
+ 
+void loop() {
+  if (buttonIsPressed() || motionIsDetected()) {
+    changeLights();
+    delay(10000); // wait for 10 seconds
+  }
+ 
+  delay(10);
+}
+ 
+bool motionIsDetected() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+ 
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration / 58.2;
+ 
+  if (distance > 105) {
+    return true;
+  }
+ 
+  return false;
+}
+ 
+bool buttonIsPressed() {
+  if (digitalRead(button) == HIGH) {
+    delay(15); // software debounce
+    if (digitalRead(button) == HIGH) {
+      return true;
+    }
+  }
+ 
+  return false;
+}
+ 
+void changeLights() {
+  // green off, yellow on for 3 seconds
+  digitalWrite(green, LOW);
+  digitalWrite(yellow, HIGH);
+  delay(3000);
+  // turn off yellow, then turn red on for 5 seconds
+  digitalWrite(yellow, LOW);
+  digitalWrite(red, HIGH);
+ 
+  delay(5000);
+ 
+  // turn off red and yellow, then turn on green
+  digitalWrite(yellow, LOW);
+  digitalWrite(red, LOW);
+  digitalWrite(green, HIGH);
+  delay(3000);
+}
